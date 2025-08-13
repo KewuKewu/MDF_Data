@@ -1,0 +1,136 @@
+<head>
+    <meta charset="UTF-8">
+    <title>卡牌管理前端示例</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #222 0%, #444 100%);
+            color: #eee;
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 30px;
+            background: rgba(30,30,30,0.85);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 24px;
+            color: #fff;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 8px #000;
+        }
+        .search-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        .search-bar input {
+            background: #222;
+            color: #ffffff;
+            border: 1px solid #555;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .search-bar input:focus {
+            border-color: #aaa;
+            outline: none;
+        }
+        .search-bar button {
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #111;
+            transition: background 0.2s;
+        }
+        .search-bar button:hover {
+            background: #555;
+        }
+        #result {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+        #result img {
+            max-width: 250px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px #111;
+            filter: grayscale(30%);
+            transition: transform 0.3s, filter 0.3s;
+            cursor: pointer;
+        }
+        #result img:hover {
+            transform: scale(1.5);
+            filter: grayscale(0%);
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>搜索卡牌</h2>
+        <div class="search-bar">
+            <input id="searchKeyword" placeholder="搜索卡面标题及内容">
+            <input id="searchFeature" placeholder="搜索卡牌特性">
+            <input id="searchBelong" placeholder="搜索卡牌所属角色">
+            <input id="searchRarity" placeholder="搜索卡牌稀有度">
+            <input id="searchManacost" placeholder="搜索灵力消耗">
+            <input id="searchPower" placeholder="搜索原始战力">
+            <input id="searchSplendor" placeholder="搜索华丽度">
+            <input id="searchDamageType" placeholder="搜索伤害类型">
+            <input id="searchActivationLevel" placeholder="搜索发动等级需求">
+            <input id="tags" placeholder="搜索关联词条（tag）">
+            <button onclick="searchCard()">搜索</button>
+        </div>
+        <div id="result"></div>
+    </div>
+    <script>
+    // 搜索卡牌
+    function searchCard() {
+        const keyword = document.getElementById('searchKeyword').value;
+        const feature = document.getElementById('searchFeature').value;
+        const belong = document.getElementById('searchBelong').value;
+        const rarity = document.getElementById('searchRarity').value;
+        const manacost = document.getElementById('searchManacost').value;
+        const power = document.getElementById('searchPower').value;
+        const splendor = document.getElementById('searchSplendor').value;
+        const damageType = document.getElementById('searchDamageType').value;
+        const activationLevel = document.getElementById('searchActivationLevel').value;
+        const tags = document.getElementById('tags').value;
+        let queryParams = `?keyword=${encodeURIComponent(keyword)}`;
+        if (feature) queryParams += `&feature=${encodeURIComponent(feature)}`;
+        if (belong) queryParams += `&belong=${encodeURIComponent(belong)}`;
+        if (rarity) queryParams += `&rarity=${encodeURIComponent(rarity)}`;
+        if (manacost) queryParams += `&manacost=${encodeURIComponent(manacost)}`;
+        if (power) queryParams += `&power=${encodeURIComponent(power)}`;
+        if (splendor) queryParams += `&splendor=${encodeURIComponent(splendor)}`;
+        if (damageType) queryParams += `&damageType=${encodeURIComponent(damageType)}`;
+        if (activationLevel) queryParams += `&activationLevel=${encodeURIComponent(activationLevel)}`;
+        if (tags) queryParams += `&tags=${encodeURIComponent(tags)}`;
+        fetch(`http://127.0.0.1:5000/card/search${queryParams}`)
+            .then(res => res.json())
+            .then(data => {
+                let html = '';
+                data.forEach(card => {
+                    html += `<img src="http://127.0.0.1:5000/static/Images/${card.card_id}.jpg" alt="卡牌图片">`;
+                });
+                document.getElementById('result').innerHTML = html;
+            });
+    }
+    </script>
+</body>
