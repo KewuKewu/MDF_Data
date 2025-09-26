@@ -35,9 +35,8 @@ def create_table(conn):
             base_power INTEGER, -- 原始战力
             damage_type TEXT, -- 伤害类型
             activation_level TEXT, -- 激活等级(S-C-H)
-            skill_descriptions TEXT,  -- 存储JSON数组 -- 技能描述
             character_nickname TEXT, -- 角色昵称
-            unique_card_id TEXT UNIQUE,  -- 卡牌存储ID，用于生成卡组
+            unique_card_id INTEGER UNIQUE,  -- 卡牌存储ID，用于生成卡组
             card_features TEXT  -- 存储JSON数组 -- 卡牌特性
         );
         """
@@ -54,10 +53,10 @@ def insert_card(conn, card_data):
     INSERT INTO cards(
         card_name, card_type, card_description, rarity, card_id, belongs_to, 
         card_phrase, acquisition, illustrator, related_tags, 
-        splendor, mana_cost, base_power, damage_type, activation_level,
-        skill_descriptions, character_nickname, unique_card_id, card_features
+        splendor, mana_cost, base_power, damage_type, activation_level, 
+        character_nickname, unique_card_id, card_features
     ) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
     try:
         cursor = conn.cursor()
@@ -66,8 +65,8 @@ def insert_card(conn, card_data):
         if 'related_tags' in card_data:
             card_data['related_tags'] = json.dumps(card_data['related_tags'])
         
-        if 'skill_descriptions' in card_data:
-            card_data['skill_descriptions'] = json.dumps(card_data['skill_descriptions'])
+        # if 'skill_descriptions' in card_data:
+        #     card_data['skill_descriptions'] = json.dumps(card_data['skill_descriptions'])
 
         if 'acquisition' in card_data:
             card_data['acquisition'] = json.dumps(card_data['acquisition'])
@@ -91,9 +90,8 @@ def insert_card(conn, card_data):
             card_data.get('base_power', 0),
             card_data.get('damage_type', ''),
             card_data.get('activation_level', ''),
-            card_data.get('skill_descriptions', '[]'),
             card_data.get('character_nickname', ''),
-            card_data.get('unique_card_id', ''),
+            card_data.get('unique_card_id', 0),
             card_data.get('card_features', '[]')
         ))
         conn.commit()
@@ -172,8 +170,8 @@ def search_cards(conn, keyword, feature, belong, rarity, manacost, power, splend
             # 解析JSON字段
             if card['related_tags']:
                 card['related_tags'] = json.loads(card['related_tags'])
-            if card['skill_descriptions']:
-                card['skill_descriptions'] = json.loads(card['skill_descriptions'])
+            # if card['skill_descriptions']:
+            #     card['skill_descriptions'] = json.loads(card['skill_descriptions'])
             formatted_results.append(card)
         
         return formatted_results
@@ -217,7 +215,7 @@ def update_card(conn, card_id, update_data):
     for key, value in update_data.items():
         fields.append(f"{key} = ?")
         # 如果是 JSON 字段，需序列化
-        if key in ['related_tags', 'skill_descriptions']:
+        if key in ['related_tags', 'acquisition', 'card_features']:
             value = json.dumps(value)
         values.append(value)
     sql = f"UPDATE cards SET {', '.join(fields)} WHERE card_id = ?"

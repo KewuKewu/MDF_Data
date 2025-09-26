@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>横向分布卡片展示</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #4a7bff;
+            --primary-dark: #2a5bdf;
+            --secondary: #9b59b6;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --gray: #95a5a6;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(30, 30, 50, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            padding: 30px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            color: #a0d2eb;
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 12px 25px;
+            background: rgba(74, 123, 255, 0.3);
+            border: 2px solid var(--primary);
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(74, 123, 255, 0.4);
+        }
+        
+        .control-btn.active {
+            background: var(--primary);
+            box-shadow: 0 0 15px rgba(74, 123, 255, 0.6);
+        }
+        
+        /* 横向分布卡片容器 */
+        .card-container {
+            display: flex;
+            overflow-x: auto;
+            padding: 20px 10px;
+            gap: 25px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) rgba(30, 30, 50, 0.8);
+        }
+        
+        /* 自定义滚动条 */
+        .card-container::-webkit-scrollbar {
+            height: 10px;
+        }
+        
+        .card-container::-webkit-scrollbar-track {
+            background: rgba(30, 30, 50, 0.8);
+            border-radius: 10px;
+        }
+        
+        .card-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            flex: 0 0 280px;
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px) rotate(2deg);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+        
+        .card-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ffcc00;
+        }
+        
+        .card-type {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .card-tag {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        
+        .tag-spell {
+            background: linear-gradient(to right, #3498db, #1d6fa5);
+        }
+        
+        .tag-unit {
+            background: linear-gradient(to right, #e74c3c, #c0392b);
+        }
+        
+        .tag-legendary {
+            background: linear-gradient(to right, #f39c12, #d35400);
+        }
+        
+        .tag-nature {
+            background: linear-gradient(to right, #27ae60, #219653);
+        }
+        
+        .card-image {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-image::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(0,0,0,0.3), rgba(0,0,0,0.1));
+            z-index: 1;
+        }
+        
+        .card-info {
+            padding: 20px;
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-description {
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            color: #ddd;
+        }
+        
+        .card-stats {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: auto;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+        
+        .card-footer {
+            display: flex;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .add-btn {
+            background: var(--success);
+        }
+        
+        .add-btn:hover {
+            background: #2ecc71;
+        }
+        
+        .details-btn {
+            background: var(--primary);
+            margin-left: 10px;
+        }
+        
+        .details-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .card {
+                flex: 0 0 250px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                width: 80%;
+            }
+            
+            .card {
+                flex: 0 0 220px;
+            }
+            
+            .card-name {
+                font-size: 1.2rem;
+            }
+        }
+        
+        .info-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 40px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .info-panel h2 {
+            color: #a0d2eb;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-box {
+            background: rgba(40, 40, 60, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .info-box h3 {
+            color: #ffcc00;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+        
+        .info-box ul {
+            padding-left: 20px;
+        }
+        
+        .info-box li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-th"></i> DIV横向卡片分布展示</h1>
+            <p class="subtitle">
+                使用Flexbox实现响应式横向卡片布局，展示多种卡片样式与交互效果。支持水平滚动，完美适配各种屏幕尺寸。
+            </p>
+        </header>
+        
+        <div class="controls">
+            <button class="control-btn active">
+                <i class="fas fa-fire"></i> 全部卡片
+            </button>
+            <button class="control-btn">
+                <i class="fas fa-hat-wizard"></i> 法术类
+            </button>
+            <button class="control-btn">
+                <i class="fas fa-dragon"></i> 随从类
+            </button>
+            <button class="control-btn">
+                <i class="fas fa-crown"></i> 传说类
+            </button>
+            <button class="control-btn">
+                <i class="fas fa-leaf"></i> 自然类
+            </button>
+        </div>
+        
+        <!-- 横向卡片容器 -->
+        <div class="card-container">
+            <!-- 卡片1 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-name">火焰冲击</div>
+                    <div class="card-type">
+                        <span class="card-tag tag-spell">法术</span>
+                        <span class="card-tag tag-spell">火焰</span>
+                    </div>
+                </div>
+                <div class="card-image" style="background: linear-gradient(135deg, #ff416c, #ff4b2b);">
+                    🔥
+                </div>
+                <div class="card-info">
+                    <p class="card-description">
+                        对目标造成8点火焰伤害，如果目标处于冻结状态，伤害翻倍。
+                    </p>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <div class="stat-value">8</div>
+                            <div class="stat-label">伤害</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">3</div>
+                            <div class="stat-label">法力</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">史诗</div>
+                            <div class="stat-label">稀有度</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="action-btn add-btn">
+                        <i class="fas fa-plus"></i> 加入卡组
+                    </button>
+                    <button class="action-btn details-btn">
+                        <i class="fas fa-info-circle"></i> 详情
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 卡片2 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-name">圣光守护</div>
+                    <div class="card-type">
+                        <span class="card-tag tag-spell">法术</span>
+                        <span class="card-tag tag-spell">神圣</span>
+                    </div>
+                </div>
+                <div class="card-image" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                    ✨
+                </div>
+                <div class="card-info">
+                    <p class="card-description">
+                        为所有友方随从恢复10点生命值，并获得+2/+2的增益效果。
+                    </p>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <div class="stat-value">10</div>
+                            <div class="stat-label">治疗</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">4</div>
+                            <div class="stat-label">法力</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">稀有</div>
+                            <div class="stat-label">稀有度</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="action-btn add-btn">
+                        <i class="fas fa-plus"></i> 加入卡组
+                    </button>
+                    <button class="action-btn details-btn">
+                        <i class="fas fa-info-circle"></i> 详情
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 卡片3 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-name">巨龙领主</div>
+                    <div class="card-type">
+                        <span class="card-tag tag-legendary">传说</span>
+                        <span class="card-tag tag-unit">龙</span>
+                    </div>
+                </div>
+                <div class="card-image" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                    🐉
+                </div>
+                <div class="card-info">
+                    <p class="card-description">
+                        战吼：召唤两条5/5的幼龙。每当该随从攻击时，对所有敌人造成2点伤害。
+                    </p>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <div class="stat-value">8/8</div>
+                            <div class="stat-label">攻击/生命</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">9</div>
+                            <div class="stat-label">法力</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">传说</div>
+                            <div class="stat-label">稀有度</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="action-btn add-btn">
+                        <i class="fas fa-plus"></i> 加入卡组
+                    </button>
+                    <button class="action-btn details-btn">
+                        <i class="fas fa-info-circle"></i> 详情
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 卡片4 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-name">剧毒蜘蛛</div>
+                    <div class="card-type">
+                        <span class="card-tag tag-unit">随从</span>
+                        <span class="card-tag tag-unit">野兽</span>
+                    </div>
+                </div>
+                <div class="card-image" style="background: linear-gradient(135deg, #834d9b, #d04ed6);">
+                    🕷️
+                </div>
+                <div class="card-info">
+                    <p class="card-description">
+                        潜行。剧毒：消灭任何受到该随从伤害的随从。亡语：召唤两只1/1的毒蜘蛛。
+                    </p>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <div class="stat-value">3/2</div>
+                            <div class="stat-label">攻击/生命</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">3</div>
+                            <div class="stat-label">法力</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">普通</div>
+                            <div class="stat-label">稀有度</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="action-btn add-btn">
+                        <i class="fas fa-plus"></i> 加入卡组
+                    </button>
+                    <button class="action-btn details-btn">
+                        <i class="fas fa-info-circle"></i> 详情
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 卡片5 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-name">自然之怒</div>
+                    <div class="card-type">
+                        <span class="card-tag tag-spell">法术</span>
+                        <span class="card-tag tag-nature">自然</span>
+                    </div>
+                </div>
+                <div class="card-image" style="background: linear-gradient(135deg, #56ab2f, #a8e063);">
+                    🌿
+                </div>
+                <div class="card-info">
+                    <p class="card-description">
+                        对一个随从造成5点伤害，并召唤一个5/5的古树。过载：(1)。
+                    </p>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <div class="stat-value">5</div>
+                            <div class="stat-label">伤害</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">4</div>
+                            <div class="stat-label">法力</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">稀有</div>
+                            <div class="stat-label">稀有度</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="action-btn add-btn">
+                        <i class="fas fa-plus"></i> 加入卡组
+                    </button>
+                    <button class="action-btn details-btn">
+                        <i class="fas fa-info-circle"></i> 详情
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 卡片6 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-name">暗影刺客</div>
+                    <div class="card-type">
+                        <span class="card-tag tag-unit">随从</span>
+                        <span class="card-tag tag-unit">潜行</span>
+                    </div>
+                </div>
+                <div class="card-image" style="background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);">
+                    🗡️
+                </div>
+                <div class="card-info">
+                    <p class="card-description">
+                        连击：获得+3攻击力。潜行：不会被攻击，直到发动攻击。
+                    </p>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <div class="stat-value">5/3</div>
+                            <div class="stat-label">攻击/生命</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">4</div>
+                            <div class="stat-label">法力</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">史诗</div>
+                            <div class="stat-label">稀有度</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="action-btn add-btn">
+                        <i class="fas fa-plus"></i> 加入卡组
+                    </button>
+                    <button class="action-btn details-btn">
+                        <i class="fas fa-info-circle"></i> 详情
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h2><i class="fas fa-lightbulb"></i> DIV横向分布实现方法</h2>
+            <div class="info-content">
+                <div class="info-box">
+                    <h3>Flexbox布局</h3>
+                    <ul>
+                        <li>容器设置 <code>display: flex;</code></li>
+                        <li>使用 <code>overflow-x: auto;</code> 实现水平滚动</li>
+                        <li>设置 <code>gap: 25px;</code> 控制卡片间距</li>
+                        <li>卡片使用 <code>flex: 0 0 280px;</code> 固定宽度</li>
+                        <li>添加自定义滚动条美化体验</li>
+                    </ul>
+                </div>
+                
+                <div class="info-box">
+                    <h3>响应式设计</h3>
+                    <ul>
+                        <li>使用媒体查询适配不同屏幕尺寸</li>
+                        <li>在小屏幕上减小卡片宽度</li>
+                        <li>移动设备上垂直排列控制按钮</li>
+                        <li>使用相对单位确保布局灵活性</li>
+                    </ul>
+                </div>
+                
+                <div class="info-box">
+                    <h3>视觉效果</h3>
+                    <ul>
+                        <li>卡片悬停动画：位移、旋转和阴影增强</li>
+                        <li>渐变背景提升视觉层次感</li>
+                        <li>标签使用圆角和渐变效果</li>
+                        <li>半透明覆盖层增强图像效果</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 简单的交互效果
+        document.querySelectorAll('.control-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.control-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+        
+        // 添加按钮交互效果
+        document.querySelectorAll('.add-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const card = this.closest('.card');
+                const cardName = card.querySelector('.card-name').textContent;
+                
+                // 创建反馈效果
+                this.innerHTML = '<i class="fas fa-check"></i> 已添加';
+                this.style.background = '#27ae60';
+                
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-plus"></i> 加入卡组';
+                    this.style.background = '';
+                }, 1500);
+                
+                console.log(`已添加卡片: ${cardName}`);
+            });
+        });
+    </script>
+</body>
+</html>

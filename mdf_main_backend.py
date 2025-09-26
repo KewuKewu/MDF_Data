@@ -49,6 +49,17 @@ def update(card_id):
     conn.close()
     return jsonify({"msg": "修改成功"})
 
+@app.route('/card/all', methods=['GET'])
+def get_all_cards():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT card_id, unique_card_id, card_name FROM cards")
+    results = cursor.fetchall()
+    conn.close()
+    # 转为字典列表
+    cards = [{"card_id": row[0], "unique_card_id": row[1], "card_name": row[2]} for row in results]
+    return jsonify(cards)
+
 if __name__ == '__main__':
     # 启动 Flask 服务，debug 模式方便开发调试
     app.run(debug=True)

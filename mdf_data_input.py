@@ -19,11 +19,11 @@ def main():
                     row['related_terms'] = json.loads(row['related_terms'])
                 except json.JSONDecodeError:
                     row['related_terms'] = [term.strip() for term in row['related_terms'].split(',')]
-            if 'skill_descriptions' in row:
-                try:
-                    row['skill_descriptions'] = json.loads(row['skill_descriptions'])
-                except json.JSONDecodeError:
-                    row['skill_descriptions'] = [desc.strip() for desc in row['skill_descriptions'].split(',')]
+            # if 'skill_descriptions' in row:
+            #     try:
+            #         row['skill_descriptions'] = json.loads(row['skill_descriptions'])
+            #     except json.JSONDecodeError:
+            #         row['skill_descriptions'] = [desc.strip() for desc in row['skill_descriptions'].split(',')]
             if 'acquisition' in row:
                 try:
                     row['acquisition'] = json.loads(row['acquisition'])
