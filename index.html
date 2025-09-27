@@ -490,7 +490,7 @@
 	const MAX_PER_CARD = 3;
 
 	// 页面加载时一次性加载所有卡牌信息
-	fetch('allCards_merged.json')
+	fetch('allCards_merged_with_uid.json')
 	.then(res => res.json())
 	.then(cards => {
 		allCards = cards;
